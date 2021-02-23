@@ -1,15 +1,27 @@
-import React, { useCallback, useState, useRef } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { DefaultLayouts } from "../templates";
 import { Button } from "../atoms";
 import { Box, TextField } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
+import { RouteComponentProps } from 'react-router-dom'
+import Peer, { MeshRoom } from 'skyway-js'
 
-const Room = () => {
+interface Props extends RouteComponentProps<{ roomId: string }> {}
+
+const Room: React.FC<Props> = (props) => {
+  const { roomId } = props.match.params
+  const roomRef = useRef<MeshRoom>(null)
+
   const [messages, setMessages] = useState<string[]>(["aaaa", "bbbb", "cccc"]);
   const messageRef = useRef("");
 
   const handleClick = useCallback(() => {
+    if (roomRef.current === null) {
+      return
+    }
+    roomRef.current.send(messageRef.current)
     setMessages([...messages, messageRef.current]);
+    messageRef.current = ""
   }, [messages]);
 
   const handleChange = useCallback(
@@ -18,6 +30,41 @@ const Room = () => {
     },
     []
   );
+
+  // チャット用のEffect
+  useEffect(() => {
+    const peer = new Peer({
+      key: process.env.REACT_APP_SKYWAY_API_KEY,
+      // debug: 3,
+    })
+    peer.on('open', () => {
+      const room = peer.joinRoom(roomId)
+      // @ts-ignore
+      roomRef.current = room
+      room.on('open', () => {
+        console.log('open', room)
+        room.getLog()
+      })
+      room.on('log', (logs) => {
+        const chats = logs
+          .map((log) => JSON.parse(log))
+          .filter((log) => log.messageType === 'ROOM_DATA')
+          .map((log) => log.message.data)
+        setMessages(prev => [...prev, ...chats])
+      })
+      room.on('data', ({ src, data }) => {
+        console.log('data', data)
+        setMessages((prev) => [...prev, data])
+      })
+      // room.on('stream', (stream) => {
+      //   setAudioMedias([...audioMedias, stream])
+      // })
+      // room.on('peerJoin', peerId => {})
+      // room.on('peerLeave', (peerId) => {
+      //   setAudioMedias(audioMedias.filter((media) => media.peerId !== peerId))
+      // })
+    })
+  }, [roomId])
 
   return (
     <DefaultLayouts>
