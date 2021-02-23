@@ -12,7 +12,7 @@ export const Rooter = () => {
         <Switch>
           <Route exact path="/" component={Home} />
           <Route exact path="/room" component={Room} />
-          <Route exact path="/test" component={Test} />
+          <Route exact path="/room/:roomId" component={Test} />
         </Switch>
       </Suspense>
     </BrowserRouter>
