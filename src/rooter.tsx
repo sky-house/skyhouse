@@ -3,6 +3,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 
 const Home = lazy(() => import("./components/pages/Home"));
 const Room = lazy(() => import("./components/pages/Room"));
+const Test = lazy(() => import("./components/pages/Test"));
 
 export const Rooter = () => {
   return (
@@ -11,6 +12,7 @@ export const Rooter = () => {
         <Switch>
           <Route exact path="/" component={Home} />
           <Route exact path="/room" component={Room} />
+          <Route exact path="/room/:roomId" component={Test} />
         </Switch>
       </Suspense>
     </BrowserRouter>
