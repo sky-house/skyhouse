@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Peer, { MeshRoom } from 'skyway-js'
 import { RouteComponentProps } from 'react-router-dom'
+import { Audio } from '../atoms/Audio'
 
 interface MediaStreamWithPeerId extends MediaStream {
   peerId: string
@@ -20,41 +21,31 @@ const Test: React.FC<Props> = (props) => {
       // debug: 3,
     })
     peer.on('open', () => {
-      navigator.mediaDevices
-        .getUserMedia({
-          audio: true,
-          video: false,
-        })
-        .then((localStream) => {
-          const room = peer.joinRoom(roomId, { stream: localStream })
-          // @ts-ignore
-          roomRef.current = room
-          room.on('open', () => {
-            console.log('open', room)
-            room.getLog()
-          })
-          room.on('log', (logs) => {
-            const chats = logs
-              .map((log) => JSON.parse(log))
-              .filter((log) => log.messageType === 'ROOM_DATA')
-              .map((log) => log.message.data)
-            setChatLogs([...chatLogs, ...chats])
-          })
-          room.on('data', ({ src, data }) => {
-            console.log('data', data)
-            setChatLogs(prev => [...prev, data])
-          })
-          room.on('stream', (stream) => {
-            setAudioMedias([...audioMedias, stream])
-          })
-          // room.on('peerJoin', peerId => {})
-          room.on('peerLeave', (peerId) => {
-            setAudioMedias(
-              audioMedias.filter((media) => media.peerId !== peerId)
-            )
-          })
-        })
-        .catch(console.error)
+      const room = peer.joinRoom(roomId)
+      // @ts-ignore
+      roomRef.current = room
+      room.on('open', () => {
+        console.log('open', room)
+        room.getLog()
+      })
+      room.on('log', (logs) => {
+        const chats = logs
+          .map((log) => JSON.parse(log))
+          .filter((log) => log.messageType === 'ROOM_DATA')
+          .map((log) => log.message.data)
+        setChatLogs([...chatLogs, ...chats])
+      })
+      room.on('data', ({ src, data }) => {
+        console.log('data', data)
+        setChatLogs((prev) => [...prev, data])
+      })
+      room.on('stream', (stream) => {
+        setAudioMedias([...audioMedias, stream])
+      })
+      // room.on('peerJoin', peerId => {})
+      room.on('peerLeave', (peerId) => {
+        setAudioMedias(audioMedias.filter((media) => media.peerId !== peerId))
+      })
     })
   }, [roomId])
 
@@ -92,22 +83,6 @@ const Test: React.FC<Props> = (props) => {
       ))}
     </div>
   )
-}
-
-const Audio: React.FC<{ stream: MediaStream }> = ({ stream }) => {
-  const audioRef = useRef<HTMLAudioElement>(null)
-  useEffect(() => {
-    const $audio = audioRef.current
-    if ($audio === null) {
-      return
-    }
-    if ($audio.srcObject === stream) {
-      return
-    }
-    $audio.srcObject = stream
-    $audio.paused && $audio.play()
-  }, [stream])
-  return <audio ref={audioRef} />
 }
 
 export default Test
