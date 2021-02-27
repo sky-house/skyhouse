@@ -187,7 +187,8 @@ const Room: React.FC<Props> = (props) => {
         <Box className={classes.mainContentsContainer}>
           <Typography>{roomId}</Typography>
           <Grid className={classes.iconContainer} container justify="center" spacing={2}>
-            {users.map((user) => (
+            {/* usersに自分自身が含まれていないので追加 */}
+            {[animalName, ...users].map((user) => (
               <Grid item>
                 <Avator name={user} bgColor="primary" margin={1} />
               </Grid>
