@@ -44,7 +44,6 @@ const useStyles = makeStyles({
     width: "100%",
     zIndex: 99,
     background:
-      "linear-gradient(rgba(242, 239, 228, 0) 20%, rgba(242, 239, 228, 1) 50%)",
-    borderRadius: "20px",
+      "linear-gradient(rgba(242, 239, 228, 0) 20%, rgba(242, 239, 228, 1) 65%)",
   },
 });
