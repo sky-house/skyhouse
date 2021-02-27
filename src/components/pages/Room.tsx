@@ -3,8 +3,7 @@ import { useLocation, RouteComponentProps } from "react-router-dom";
 import Peer, { MeshRoom } from "skyway-js";
 import { Box, TextField } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
-import { Button } from "../atoms";
-import { Audio } from "../atoms/Audio";
+import { Audio, Button } from "../atoms";
 import { DefaultLayouts } from "../templates";
 import { useUniqueString } from "../../hooks";
 
