@@ -2,10 +2,23 @@ import React from "react";
 import { Button as MaterialButton, ButtonProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-export const Button: React.FC<ButtonProps> = ({ children, ...rest }) => {
+interface Props extends ButtonProps {
+  isGreen?: boolean;
+}
+
+export const Button: React.FC<Props> = ({
+  children,
+  isGreen = true,
+  ...rest
+}) => {
   const classes = useStyles();
   return (
-    <MaterialButton className={classes.button} {...rest}>
+    <MaterialButton
+      className={`${classes.button} ${
+        isGreen ? classes.greenButton : classes.grayButton
+      }`}
+      {...rest}
+    >
       {children}
     </MaterialButton>
   );
@@ -14,13 +27,19 @@ export const Button: React.FC<ButtonProps> = ({ children, ...rest }) => {
 const useStyles = makeStyles({
   button: {
     borderRadius: "20px",
-    backgroundColor: "#35AD5E",
-    color: "#fff",
     padding: "5px 20px",
     fontWeight: "bold",
     "&:active": {
       backgroundColor: "#35AD5E",
       color: "#ddd",
     },
+  },
+  greenButton: {
+    backgroundColor: "#35AD5E",
+    color: "#fff",
+  },
+  grayButton: {
+    backgroundColor: "#F2F2F2",
+    color: "#B76663",
   },
 });
