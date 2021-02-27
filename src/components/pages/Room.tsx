@@ -167,7 +167,8 @@ const Room: React.FC<Props> = (props) => {
           room.on("log", (logs) => {
             const events = logs
               .map((log) => JSON.parse(log))
-              .filter((log) => log.messageType === "ROOM_DATA");
+              .filter((log) => log.messageType === "ROOM_DATA")
+              .map(log => log.message.data)
             const { allowUnmuteEvents, chatEvents } = filterEvents(events);
             setChatHistory((prev) => [...prev, ...chatEvents]);
             const speakers = allowUnmuteEvents.map((e) => e.allowedPeerId);
@@ -250,7 +251,7 @@ const Room: React.FC<Props> = (props) => {
               </Grid>
               {speakerPeerIds.map((speakerPeerId, index) => (
                 <Grid item key={index}>
-                  <Avator name={speakerPeerId} bgColor="primary" margin={1} />
+                  <Avator name={speakerPeerId.split('-')[0]} bgColor="primary" margin={1} />
                 </Grid>
               ))}
             </Grid>
