@@ -18,11 +18,35 @@ const useStyles = makeStyles({
     flexDirection: "column",
     justifyContent: "space-around",
     alignItems: "center",
+    height: "120px",
     width: "100%",
     bgcolor: "#fff",
     paddingTop: "10px",
-    paddingBottom: "10px",
     boxShadow: "0 -3px 6px -2px rgb(0 10 60 / 20%)",
+  },
+  iconContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    height: "150px",
+    width: "100%",
+    borderBottom: "solid 2px #F2F2F2",
+  },
+  messageContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    height: "420px",
+    width: "100%",
+    overflow: "scroll",
+  },
+  message: {
+    width: "220px",
+    marginTop: "10px",
+    marginBottom: "10px",
+    padding: "10px 20px",
+    backgroundColor: "#F2F2F2",
+    borderRadius: "5px",
   },
   TextFieldContainer: {
     display: "flex",
@@ -148,16 +172,17 @@ const Room: React.FC<Props> = (props) => {
         })
         .catch(console.error);
     });
-  }, [location.state, roomId, uniqueString]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId]);
 
   return (
     <DefaultLayouts>
-      {audioMedias.map((media) => (
-        <Audio key={media.peerId} stream={media} />
+      {audioMedias.map((media, index) => (
+        <Audio key={`media.peerId-${index}`} stream={media} />
       ))}
       <Box position="relative" height="100vh" width="100%">
         <Box
-          height="90vh"
+          height="700px"
           width="100%"
           position="absolute"
           bottom="0"
@@ -165,10 +190,11 @@ const Room: React.FC<Props> = (props) => {
           borderRadius="25px 25px 0 0"
           boxShadow="0 3px 6px -2px rgb(0 10 60 / 20%)"
         >
-          icons
-          <Box>
-            {messages.map((message) => (
-              <Box key={message} bgcolor="#fff">
+          <Box className={classes.iconContainer}>icons</Box>
+
+          <Box className={classes.messageContainer}>
+            {messages.map((message, index) => (
+              <Box key={index} className={classes.message}>
                 {message}
               </Box>
             ))}
