@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { useLocation, RouteComponentProps } from "react-router-dom";
+import { useLocation, RouteComponentProps, Link } from "react-router-dom";
 import Peer, { MeshRoom } from "skyway-js";
 import {
   Box,
@@ -176,14 +176,16 @@ const Room: React.FC<Props> = (props) => {
             </Button>
           </Box>
           <Box className={classes.userActionsContainer}>
-            <Button
-              variant="contained"
-              isGreen={false}
-              size="small"
-              onClick={handleClick}
-            >
-              ✌️ Leave quietly
-            </Button>
+            <Link to="/" style={{ textDecoration: "none" }}>
+              <Button
+                variant="contained"
+                isGreen={false}
+                size="small"
+                onClick={handleClick}
+              >
+                ✌️ Leave quietly
+              </Button>
+            </Link>
             {isMuted ? (
               <IconButton
                 className={classes.audioIconButton}
