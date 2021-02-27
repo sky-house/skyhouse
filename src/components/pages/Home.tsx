@@ -10,9 +10,9 @@ const Home = () => {
 
   const roomNames = useMemo(
     () =>
-      peers
-        .filter((room) => room.includes("-"))
-        .map((room) => room.split("-")[1]),
+      Array.from(new Set(peers.filter((room) => room.includes("-")))).map(
+        (room) => room.split("-")[1]
+      ),
     [peers]
   );
 
