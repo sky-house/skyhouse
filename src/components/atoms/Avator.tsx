@@ -18,9 +18,9 @@ export const Avator: React.FC<Props> = ({ name, bgColor }: Props) => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      width={50}
-      height={50}
-      borderRadius={20}
+      width={45}
+      height={45}
+      borderRadius={18}
       bgcolor={BgColors[bgColor]}
     >
       {name}
