@@ -1,8 +1,6 @@
-import { useMemo } from "react";
-
-export const useAnimalName = (excludeNames: string[]): string => {
+export const chooseAnimalName = (excludeNames: string[]): string => {
   const candidate = dict.filter(name => !excludeNames.includes(name))
-  const animalName = useMemo(() => candidate[Math.floor(Math.random() * candidate.length)], [candidate])
+  const animalName = candidate[Math.floor(Math.random() * candidate.length)]
   return animalName
 }
 

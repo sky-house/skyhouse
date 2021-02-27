@@ -5,7 +5,7 @@ import { Box, IconButton, TextField, Grid, Typography } from "@material-ui/core"
 import SendIcon from "@material-ui/icons/Send";
 import { Audio, Avator, Button } from "../atoms";
 import { DefaultLayouts } from "../templates";
-import { useAnimalName } from "../../hooks";
+import { chooseAnimalName } from "../../hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import VolumeUpOutlinedIcon from "@material-ui/icons/VolumeUpOutlined";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
@@ -49,8 +49,7 @@ const Room: React.FC<Props> = (props) => {
   const roomRef = useRef<MeshRoom>(null);
   const messageEl = useRef<HTMLDivElement>(null);
 
-  const animalName = useAnimalName((location.state as RoomState).users || []);
-  const users = (location.state as RoomState).users || [];
+  const users = useMemo(() => (location.state as RoomState).users || [], [location.state])
 
   const [chatHistory, setChatHistory] = useState<ChatEvent[]>([]);
   const [message, setMessage] = useState("");
@@ -64,6 +63,8 @@ const Room: React.FC<Props> = (props) => {
   const [isSpeaker, setIsSpeaker] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const peerId = useRef<string>("");
+
+  const myAnimalName = useRef("")
 
   const handleClickSend = useCallback(() => {
     if (roomRef.current === null || message === "") {
@@ -110,6 +111,8 @@ const Room: React.FC<Props> = (props) => {
   useEffect(() => {
     const isAdmin = (location.state as LinkState).admin;
     isAdmin && setIsSpeaker(true);
+    const animalName = chooseAnimalName(users);
+    myAnimalName.current = animalName
     const originalPeerId = isAdmin ? `${animalName}-${roomId}-admin` : `${animalName}-${roomId}`;
     peerId.current = originalPeerId;
     const peer = new Peer(originalPeerId, {
@@ -129,7 +132,6 @@ const Room: React.FC<Props> = (props) => {
           // @ts-ignore
           roomRef.current = room;
           room.on("open", () => {
-            console.log("open", room);
             room.getLog();
           });
           room.on("log", (logs) => {
@@ -142,7 +144,6 @@ const Room: React.FC<Props> = (props) => {
             setSpeakerPeerIds((prev) => [...prev, ...speakers]);
           });
           room.on("data", ({ src, data }: { src: any; data: ChatEvent | AllowUnmuteEvent }) => {
-            console.log("data", data);
             if (data.kind === "ChatEvent") {
               setChatHistory((prev) => [...prev, data]);
             } else if (data.kind === "AllowUnmuteEvent") {
@@ -153,7 +154,6 @@ const Room: React.FC<Props> = (props) => {
             }
           });
           room.on("stream", (stream) => {
-            console.log("stream", stream);
             setAudioMedias((prev) => [...prev, stream]);
           });
           // room.on('peerJoin', peerId => {})
@@ -188,7 +188,10 @@ const Room: React.FC<Props> = (props) => {
           <Typography>{roomId}</Typography>
           <Grid className={classes.iconContainer} container justify="center" spacing={2}>
             {/* usersに自分自身が含まれていないので追加 */}
-            {[animalName, ...users].map((user) => (
+            <Grid item>
+              <Avator name={myAnimalName.current} bgColor="primary" margin={1} />
+            </Grid>
+            {users.map((user) => (
               <Grid item>
                 <Avator name={user} bgColor="primary" margin={1} />
               </Grid>
