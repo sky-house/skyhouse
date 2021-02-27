@@ -123,16 +123,8 @@ const Room: React.FC<Props> = (props) => {
       {audioMedias.map((media, index) => (
         <Audio key={`media.peerId-${index}`} stream={media} />
       ))}
-      <Box position="relative" height="100vh" width="100%">
-        <Box
-          height="700px"
-          width="100%"
-          position="absolute"
-          bottom="0"
-          bgcolor="#fff"
-          borderRadius="25px 25px 0 0"
-          boxShadow="0 3px 6px -2px rgb(0 10 60 / 20%)"
-        >
+      <Box className={classes.root}>
+        <Box className={classes.mainContentsContainer}>
           <Box className={classes.iconContainer}>icons</Box>
 
           <Box className={classes.messageContainer}>
@@ -198,6 +190,20 @@ const Room: React.FC<Props> = (props) => {
 export default Room;
 
 const useStyles = makeStyles({
+  root: {
+    position: "relative",
+    height: "100vh",
+    width: "100%",
+  },
+  mainContentsContainer: {
+    height: "700px",
+    width: "100%",
+    position: "absolute",
+    bottom: "0",
+    backgroundColor: "#fff",
+    borderRadius: "25px 25px 0 0",
+    boxShadow: "0 3px 6px -2px rgb(0 10 60 / 20%)",
+  },
   InteractionContainer: {
     position: "absolute",
     bottom: "0",
