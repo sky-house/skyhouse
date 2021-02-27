@@ -77,12 +77,6 @@ const Room: React.FC<Props> = (props) => {
           room.on('open', () => {
             console.log('open', room)
             room.getLog()
-            navigator.mediaDevices
-              .getUserMedia({ audio: true, video: false })
-              .then((stream) => {
-                console.log('replaceStream', stream)
-                room.replaceStream(stream)
-              })
           })
           room.on('log', (logs) => {
             const chats = logs
