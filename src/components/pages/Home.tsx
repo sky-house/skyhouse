@@ -4,6 +4,11 @@ import Peer from "skyway-js";
 import { DefaultLayouts } from "../templates";
 import { RoomCard, CreateRoomDrawer, NoRoomName, Header } from "../organisms";
 
+/**
+ * 15sec interval
+ */
+const getListAllPeersInterval = 20 * 1000;
+
 const Home = () => {
   const names = ["Mike", "John"];
   const [peers, setPeers] = useState<string[]>([]);
@@ -17,14 +22,19 @@ const Home = () => {
   );
 
   useEffect(() => {
-    const peer = new Peer({
-      key: process.env.REACT_APP_SKYWAY_API_KEY,
-    });
-    peer.on("open", () => {
-      peer.listAllPeers((peers) => {
-        setPeers(peers);
+    const getListAllPeers = () => {
+      const peer = new Peer({
+        key: process.env.REACT_APP_SKYWAY_API_KEY,
       });
-    });
+      peer.on("open", () => {
+        peer.listAllPeers((peers) => {
+          setPeers(peers);
+        });
+      });
+    };
+    getListAllPeers();
+    const timerId = setInterval(getListAllPeers, getListAllPeersInterval);
+    return () => clearInterval(timerId);
   }, []);
 
   return (
