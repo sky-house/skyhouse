@@ -27,7 +27,7 @@ const PageNotFound = () => {
             Hey, we're still opening up but anyone can join with an no invite!
           </Typography>
         </Box>
-        <Link to="/" style={{ textDecoration: "none" }}>
+        <Link to="/home" style={{ textDecoration: "none" }}>
           <Button variant="contained">🏠 Let's go home!</Button>
         </Link>
       </Box>

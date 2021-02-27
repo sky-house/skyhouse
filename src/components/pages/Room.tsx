@@ -176,7 +176,7 @@ const Room: React.FC<Props> = (props) => {
             </Button>
           </Box>
           <Box className={classes.userActionsContainer}>
-            <Link to="/" style={{ textDecoration: "none" }}>
+            <Link to="/home" style={{ textDecoration: "none" }}>
               <Button variant="contained" isGreen={false} size="small">
                 ✌️ Leave quietly
               </Button>

@@ -12,7 +12,7 @@ export const Rooter = () => {
     <BrowserRouter>
       <Suspense fallback={<Loading />}>
         <Switch>
-          <Route exact path="/" component={Home} />
+          <Route exact path="/home" component={Home} />
           <Route exact path="/room/:roomId" component={Room} />
           <Route path="*" component={PageNotFound} />
         </Switch>
