@@ -4,21 +4,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Avator } from "../atoms";
 import { RoomDetail } from "../molecules";
 
-const useStyles = makeStyles({
-  title: {
-    fontSize: 20,
-    margin: "0 10px 10px 10px",
-    textAlign: "left",
-  }, // a style rule
-  roomDetailContainer: {
-    display: "flex",
-  }, // a nested style rule
-  roomDetailTextContainer: {
-    display: "flex",
-    flexDirection: "column",
-  },
-});
-
 interface Props {
   title: string;
   names: string[];
@@ -34,11 +19,12 @@ export const RoomCard: React.FC<Props> = ({
   return (
     <Box
       width={310}
+      color="#000"
       bgcolor="#fff"
       borderRadius={10}
       boxShadow="0 3px 6px -2px rgb(0 10 60 / 20%)"
       p={2}
-      m={2}
+      mt={2}
     >
       <Typography variant="h2" className={classes.title}>
         {title}
@@ -49,8 +35,8 @@ export const RoomCard: React.FC<Props> = ({
         </Box>
         <Box ml={2}>
           <Box className={classes.roomDetailTextContainer}>
-            {names.map((name) => (
-              <Typography>{name} 💬</Typography>
+            {names.map((name, index) => (
+              <Typography key={index}>{name} 💬</Typography>
             ))}
           </Box>
           <RoomDetail roomNumber={roomNumber} />
@@ -59,3 +45,18 @@ export const RoomCard: React.FC<Props> = ({
     </Box>
   );
 };
+
+const useStyles = makeStyles({
+  title: {
+    fontSize: 20,
+    margin: "0 10px 10px 10px",
+    textAlign: "left",
+  }, // a style rule
+  roomDetailContainer: {
+    display: "flex",
+  }, // a nested style rule
+  roomDetailTextContainer: {
+    display: "flex",
+    flexDirection: "column",
+  },
+});
