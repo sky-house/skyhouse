@@ -1,8 +1,6 @@
 import React from "react";
-import { Button as MaterialButton } from "@material-ui/core";
+import { Button as MaterialButton, ButtonProps } from "@material-ui/core";
 
-const Button: React.FC = ({ children }) => {
+export const Button: React.FC<ButtonProps> = ({ children }) => {
   return <MaterialButton>{children}</MaterialButton>;
 };
-
-export default Button;
