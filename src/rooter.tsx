@@ -11,8 +11,7 @@ export const Rooter = () => {
       <Suspense fallback={<div>Loading</div>}>
         <Switch>
           <Route exact path="/" component={Home} />
-          <Route exact path="/room" component={Room} />
-          <Route exact path="/room/:roomId" component={Test} />
+          <Route exact path="/room/:roomId" component={Room} />
         </Switch>
       </Suspense>
     </BrowserRouter>
