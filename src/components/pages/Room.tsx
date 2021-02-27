@@ -42,7 +42,7 @@ const Room: React.FC<Props> = (props) => {
   const [isMuted, setIsMuted] = useState(true);
 
   const handleClick = useCallback(() => {
-    if (roomRef.current === null) {
+    if (roomRef.current === null || message === "") {
       return;
     }
     roomRef.current.send(message);
