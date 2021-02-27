@@ -1,11 +1,47 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { useLocation, RouteComponentProps } from "react-router-dom";
 import Peer, { MeshRoom } from "skyway-js";
-import { Box, TextField } from "@material-ui/core";
+import { Box, IconButton, TextField } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
 import { Audio, Button } from "../atoms";
 import { DefaultLayouts } from "../templates";
 import { useUniqueString } from "../../hooks";
+import { makeStyles } from "@material-ui/core/styles";
+import VolumeUpOutlinedIcon from "@material-ui/icons/VolumeUpOutlined";
+import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
+
+const useStyles = makeStyles({
+  InteractionContainer: {
+    position: "absolute",
+    bottom: "0",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "100%",
+    bgcolor: "#fff",
+    paddingTop: "10px",
+    paddingBottom: "10px",
+    boxShadow: "0 -3px 6px -2px rgb(0 10 60 / 20%)",
+  },
+  TextFieldContainer: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "95%",
+    marginBottom: "15px",
+  },
+  userActionsContainer: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: "5px",
+  },
+  audioIconButton: {
+    backgroundColor: "#F2F2F2",
+  },
+});
 
 interface MediaStreamWithPeerId extends MediaStream {
   peerId: string;
@@ -18,6 +54,7 @@ interface LinkState {
 interface Props extends RouteComponentProps<{ roomId: string }> {}
 
 const Room: React.FC<Props> = (props) => {
+  const classes = useStyles();
   const location = useLocation();
   const { roomId } = props.match.params;
   const roomRef = useRef<MeshRoom>(null);
@@ -137,35 +174,51 @@ const Room: React.FC<Props> = (props) => {
             ))}
           </Box>
         </Box>
-        <Box
-          position="absolute"
-          display="flex"
-          justifyContent="space-around"
-          alignItems="center"
-          width="100%"
-          bottom="0"
-          bgcolor="#fff"
-          boxShadow="0 -3px 6px -2px rgb(0 10 60 / 20%)"
-          pt={2}
-          pb={2}
-        >
-          <TextField
-            id="chat"
-            type="text"
-            multiline={true}
-            onChange={handleChange}
-          />
-          <Button
-            variant="contained"
-            color="default"
-            endIcon={<SendIcon />}
-            onClick={handleClick}
-          >
-            送信
-          </Button>
-          {isMuted && "ミュート中です"}
-          {isMuted && <Button onClick={() => unmute()}>ミュート解除</Button>}
-          {!isMuted && <Button onClick={() => mute()}>ミュート</Button>}
+        <Box className={classes.InteractionContainer}>
+          <Box className={classes.TextFieldContainer}>
+            <TextField
+              id="chat"
+              type="text"
+              multiline={true}
+              size="small"
+              onChange={handleChange}
+            />
+            <Button
+              variant="contained"
+              endIcon={<SendIcon />}
+              size="small"
+              onClick={handleClick}
+            >
+              Send
+            </Button>
+          </Box>
+          <Box className={classes.userActionsContainer}>
+            <Button
+              variant="contained"
+              isGreen={false}
+              size="small"
+              onClick={handleClick}
+            >
+              ✌️ Leave quietly
+            </Button>
+            {isMuted ? (
+              <IconButton
+                className={classes.audioIconButton}
+                aria-label="unmute"
+                onClick={unmute}
+              >
+                <VolumeOffOutlinedIcon />
+              </IconButton>
+            ) : (
+              <IconButton
+                className={classes.audioIconButton}
+                aria-label="mute"
+                onClick={mute}
+              >
+                <VolumeUpOutlinedIcon />
+              </IconButton>
+            )}
+          </Box>
         </Box>
       </Box>
     </DefaultLayouts>
