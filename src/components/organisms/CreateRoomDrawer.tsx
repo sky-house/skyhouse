@@ -26,7 +26,14 @@ export const CreateRoomDrawer = () => {
       >
         Start a room
       </Button>
-      <Drawer anchor="bottom" open={state} onClose={toggleDrawer(false)}>
+      <Drawer
+        anchor="bottom"
+        open={state}
+        PaperProps={{
+          square: false,
+        }}
+        onClose={toggleDrawer(false)}
+      >
         <DrawerItem />
       </Drawer>
     </Box>
