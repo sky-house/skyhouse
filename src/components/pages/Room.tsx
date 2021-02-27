@@ -1,9 +1,15 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { useLocation, RouteComponentProps } from "react-router-dom";
 import Peer, { MeshRoom } from "skyway-js";
-import { Box, IconButton, TextField } from "@material-ui/core";
+import {
+  Box,
+  IconButton,
+  TextField,
+  Grid,
+  Typography,
+} from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
-import { Audio, Button } from "../atoms";
+import { Audio, Avator, Button } from "../atoms";
 import { DefaultLayouts } from "../templates";
 import { useUniqueString } from "../../hooks";
 import { makeStyles } from "@material-ui/core/styles";
@@ -118,6 +124,9 @@ const Room: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId]);
 
+  // TODO: get users
+  const users = ["john", "mike", "jack"];
+
   return (
     <DefaultLayouts>
       {audioMedias.map((media, index) => (
@@ -125,8 +134,20 @@ const Room: React.FC<Props> = (props) => {
       ))}
       <Box className={classes.root}>
         <Box className={classes.mainContentsContainer}>
-          <Box className={classes.iconContainer}>icons</Box>
-
+          <Typography>{roomId}</Typography>
+          <Grid
+            className={classes.iconContainer}
+            container
+            justify="center"
+            spacing={2}
+          >
+            {/* TODO: get users */}
+            {users.map((user) => (
+              <Grid item>
+                <Avator name={user} bgColor="primary" margin={1} />
+              </Grid>
+            ))}
+          </Grid>
           <Box className={classes.messageContainer}>
             {messages.map((message, index) => (
               <Box key={index} className={classes.message}>
@@ -196,13 +217,14 @@ const useStyles = makeStyles({
     width: "100%",
   },
   mainContentsContainer: {
-    height: "700px",
+    height: "720px",
     width: "100%",
     position: "absolute",
     bottom: "0",
     backgroundColor: "#fff",
     borderRadius: "25px 25px 0 0",
     boxShadow: "0 3px 6px -2px rgb(0 10 60 / 20%)",
+    paddingTop: "20px",
   },
   InteractionContainer: {
     position: "absolute",
@@ -218,20 +240,18 @@ const useStyles = makeStyles({
     boxShadow: "0 -3px 6px -2px rgb(0 10 60 / 20%)",
   },
   iconContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    height: "150px",
-    width: "100%",
-    borderBottom: "solid 2px #F2F2F2",
+    height: "130px",
+    marginTop: "10px",
+    overflow: "hidden",
   },
   messageContainer: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    height: "420px",
+    height: "400px",
     width: "100%",
     overflow: "scroll",
+    backgroundColor: "#fff",
   },
   message: {
     width: "220px",
