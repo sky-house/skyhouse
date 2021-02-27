@@ -29,6 +29,7 @@ const useStyles = makeStyles({
     borderRadius: "20px",
     padding: "5px 20px",
     fontWeight: "bold",
+    textTransform: "none",
     "&:active": {
       backgroundColor: "#35AD5E",
       color: "#ddd",
