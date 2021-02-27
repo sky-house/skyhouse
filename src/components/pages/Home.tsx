@@ -67,8 +67,7 @@ const Home = () => {
             }}
             style={{ textDecoration: "none" }}
           >
-            {/* usersはAdminを抜いているので+1 */}
-            <RoomCard title={room.name} names={room.admin} roomNumber={room.users.length + 1} />
+            <RoomCard title={room.name} names={room.admin} roomNumber={room.users.length} />
           </Link>
         ))}
       </Box>
