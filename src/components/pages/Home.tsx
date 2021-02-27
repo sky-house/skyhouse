@@ -30,7 +30,7 @@ const Home = () => {
           users: peers.filter(peer => peer.includes(`${roomName}`)).map(peer => peer.split("-")[0])
         }
       })
-    },[peers]
+    },[peers, roomNames]
   )
 
   useEffect(() => {
