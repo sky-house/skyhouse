@@ -1,21 +1,29 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { DefaultLayouts } from "../templates";
-import { Button } from "../atoms";
+import { useLocation, RouteComponentProps } from "react-router-dom";
+import Peer, { MeshRoom } from "skyway-js";
 import { Box, TextField } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
-import { RouteComponentProps } from "react-router-dom";
-import Peer, { MeshRoom } from "skyway-js";
+import { Button } from "../atoms";
 import { Audio } from "../atoms/Audio";
+import { DefaultLayouts } from "../templates";
+import { useUniqueString } from "../../hooks";
 
 interface MediaStreamWithPeerId extends MediaStream {
   peerId: string;
 }
 
+interface LinkState {
+  [key: string]: boolean;
+}
+
 interface Props extends RouteComponentProps<{ roomId: string }> {}
 
 const Room: React.FC<Props> = (props) => {
+  const location = useLocation();
   const { roomId } = props.match.params;
   const roomRef = useRef<MeshRoom>(null);
+
+  const uniqueString = useUniqueString();
 
   const [messages, setMessages] = useState<string[]>([]);
   const messageRef = useRef("");
@@ -58,7 +66,9 @@ const Room: React.FC<Props> = (props) => {
 
   // チャット用のEffect
   useEffect(() => {
-    const peer = new Peer({
+    const isAdmin = (location.state as LinkState).admin;
+    const originalPeerId = isAdmin ? `${uniqueString}-${roomId}` : uniqueString;
+    const peer = new Peer(originalPeerId, {
       key: process.env.REACT_APP_SKYWAY_API_KEY,
       // debug: 3,
     });
@@ -102,7 +112,7 @@ const Room: React.FC<Props> = (props) => {
         })
         .catch(console.error);
     });
-  }, [roomId]);
+  }, [location.state, roomId, uniqueString]);
 
   return (
     <DefaultLayouts>

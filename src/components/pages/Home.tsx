@@ -7,20 +7,13 @@ import { RoomCard, CreateRoomDrawer, NoRoomName, Header } from "../organisms";
 const Home = () => {
   const names = ["Mike", "John"];
   const [peers, setPeers] = useState<string[]>([]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const rooms = [
-    "yNtQkNyjAojJNGrt",
-    "yNtQkNyjAojJNGrt",
-    "yNtQkNyjAojJNGrt",
-    "yNtQkNyjAojJNGrt",
-  ];
 
   const roomNames = useMemo(
     () =>
-      rooms
+      peers
         .filter((room) => room.includes("-"))
         .map((room) => room.split("-")[1]),
-    [rooms]
+    [peers]
   );
 
   useEffect(() => {
@@ -39,18 +32,18 @@ const Home = () => {
       <Header />
       {roomNames.length === 0 && <NoRoomName />}
       {/* TODO: roomName[]に変更する */}
-      {peers.map((peer, index) => (
+      {roomNames.map((roomName, index) => (
         <Link
           key={index}
           to={{
-            pathname: `/Room/${peer}`,
+            pathname: `/Room/${roomName}`,
             state: {
               admin: false,
             },
           }}
           style={{ textDecoration: "none" }}
         >
-          <RoomCard title={peer} names={names} roomNumber={10} />
+          <RoomCard title={roomName} names={names} roomNumber={10} />
         </Link>
       ))}
       <CreateRoomDrawer />
