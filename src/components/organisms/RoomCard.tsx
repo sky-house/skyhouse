@@ -31,7 +31,7 @@ export const RoomCard: React.FC<Props> = ({
       </Typography>
       <Box className={classes.roomDetailContainer}>
         <Box>
-          <Avator name="aaa" bgColor="primary" />
+          <Avator name={names[0]} bgColor="primary" />
         </Box>
         <Box ml={2}>
           <Box className={classes.roomDetailTextContainer}>
