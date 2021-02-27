@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Peer from "skyway-js";
 import { DefaultLayouts } from "../templates";
 import { RoomCard, CreateRoomDrawer, NoRoomName, Header } from "../organisms";
+import { Box } from "@material-ui/core";
 
 /**
  * 15sec interval
@@ -40,22 +41,24 @@ const Home = () => {
   return (
     <DefaultLayouts>
       <Header />
-      {roomNames.length === 0 && <NoRoomName />}
-      {/* TODO: roomName[]に変更する */}
-      {roomNames.map((roomName, index) => (
-        <Link
-          key={index}
-          to={{
-            pathname: `/Room/${roomName}`,
-            state: {
-              admin: false,
-            },
-          }}
-          style={{ textDecoration: "none" }}
-        >
-          <RoomCard title={roomName} names={names} roomNumber={10} />
-        </Link>
-      ))}
+      <Box marginBottom="120px">
+        {roomNames.length === 0 && <NoRoomName />}
+        {/* TODO: roomName[]に変更する */}
+        {roomNames.map((roomName, index) => (
+          <Link
+            key={index}
+            to={{
+              pathname: `/Room/${roomName}`,
+              state: {
+                admin: false,
+              },
+            }}
+            style={{ textDecoration: "none" }}
+          >
+            <RoomCard title={roomName} names={names} roomNumber={10} />
+          </Link>
+        ))}
+      </Box>
       <CreateRoomDrawer />
     </DefaultLayouts>
   );
