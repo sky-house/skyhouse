@@ -10,63 +10,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import VolumeUpOutlinedIcon from "@material-ui/icons/VolumeUpOutlined";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
 
-const useStyles = makeStyles({
-  InteractionContainer: {
-    position: "absolute",
-    bottom: "0",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-around",
-    alignItems: "center",
-    height: "120px",
-    width: "100%",
-    bgcolor: "#fff",
-    paddingTop: "10px",
-    boxShadow: "0 -3px 6px -2px rgb(0 10 60 / 20%)",
-  },
-  iconContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    height: "150px",
-    width: "100%",
-    borderBottom: "solid 2px #F2F2F2",
-  },
-  messageContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    height: "420px",
-    width: "100%",
-    overflow: "scroll",
-  },
-  message: {
-    width: "220px",
-    marginTop: "10px",
-    marginBottom: "10px",
-    padding: "10px 20px",
-    backgroundColor: "#F2F2F2",
-    borderRadius: "5px",
-  },
-  TextFieldContainer: {
-    display: "flex",
-    justifyContent: "space-around",
-    alignItems: "center",
-    width: "95%",
-    marginBottom: "15px",
-  },
-  userActionsContainer: {
-    display: "flex",
-    justifyContent: "space-around",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: "5px",
-  },
-  audioIconButton: {
-    backgroundColor: "#F2F2F2",
-  },
-});
-
 interface MediaStreamWithPeerId extends MediaStream {
   peerId: string;
 }
@@ -86,7 +29,7 @@ const Room: React.FC<Props> = (props) => {
   const uniqueString = useUniqueString();
 
   const [messages, setMessages] = useState<string[]>([]);
-  const messageRef = useRef("");
+  const [message, setMessage] = useState("");
   const [audioMedias, setAudioMedias] = useState<MediaStreamWithPeerId[]>([]);
 
   const audioTrackRef = useRef<MediaStreamTrack | null>(null);
@@ -96,14 +39,14 @@ const Room: React.FC<Props> = (props) => {
     if (roomRef.current === null) {
       return;
     }
-    roomRef.current.send(messageRef.current);
-    setMessages([...messages, messageRef.current]);
-    messageRef.current = "";
-  }, [messages]);
+    roomRef.current.send(message);
+    setMessages([...messages, message]);
+    setMessage("");
+  }, [message, messages]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-      messageRef.current = e.target.value;
+      setMessage(e.target.value);
     },
     []
   );
@@ -207,6 +150,7 @@ const Room: React.FC<Props> = (props) => {
               type="text"
               multiline={true}
               size="small"
+              value={message}
               onChange={handleChange}
             />
             <Button
@@ -252,3 +196,60 @@ const Room: React.FC<Props> = (props) => {
 };
 
 export default Room;
+
+const useStyles = makeStyles({
+  InteractionContainer: {
+    position: "absolute",
+    bottom: "0",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "center",
+    height: "120px",
+    width: "100%",
+    bgcolor: "#fff",
+    paddingTop: "10px",
+    boxShadow: "0 -3px 6px -2px rgb(0 10 60 / 20%)",
+  },
+  iconContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    height: "150px",
+    width: "100%",
+    borderBottom: "solid 2px #F2F2F2",
+  },
+  messageContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    height: "420px",
+    width: "100%",
+    overflow: "scroll",
+  },
+  message: {
+    width: "220px",
+    marginTop: "10px",
+    marginBottom: "10px",
+    padding: "10px 20px",
+    backgroundColor: "#F2F2F2",
+    borderRadius: "5px",
+  },
+  TextFieldContainer: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "95%",
+    marginBottom: "15px",
+  },
+  userActionsContainer: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: "5px",
+  },
+  audioIconButton: {
+    backgroundColor: "#F2F2F2",
+  },
+});
