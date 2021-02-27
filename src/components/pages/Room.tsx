@@ -258,6 +258,7 @@ const useStyles = makeStyles({
     backgroundColor: "#F2F2F2",
     borderRadius: "5px",
     textAlign: "left",
+    overflowWrap: "break-word",
   },
   TextFieldContainer: {
     display: "flex",
