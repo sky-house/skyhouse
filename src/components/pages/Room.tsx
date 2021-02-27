@@ -183,7 +183,7 @@ const Room: React.FC<Props> = (props) => {
             </Link>
             {isMuted ? (
               <IconButton
-                className={classes.audioIconButton}
+                className={classes.volumeOffIconButton}
                 aria-label="unmute"
                 onClick={unmute}
               >
@@ -191,7 +191,7 @@ const Room: React.FC<Props> = (props) => {
               </IconButton>
             ) : (
               <IconButton
-                className={classes.audioIconButton}
+                className={classes.volumeOnIconButton}
                 aria-label="mute"
                 onClick={mute}
               >
@@ -274,7 +274,12 @@ const useStyles = makeStyles({
     width: "100%",
     marginBottom: "5px",
   },
-  audioIconButton: {
+  volumeOnIconButton: {
     backgroundColor: "#F2F2F2",
+    color: "#35AD5E",
+  },
+  volumeOffIconButton: {
+    backgroundColor: "#F2F2F2",
+    color: "#B76663",
   },
 });
