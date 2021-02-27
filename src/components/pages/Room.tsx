@@ -257,6 +257,7 @@ const useStyles = makeStyles({
     padding: "10px 20px",
     backgroundColor: "#F2F2F2",
     borderRadius: "5px",
+    textAlign: "left",
   },
   TextFieldContainer: {
     display: "flex",
