@@ -244,7 +244,7 @@ const useStyles = makeStyles({
   iconContainer: {
     height: "130px",
     marginTop: "10px",
-    overflow: "hidden",
+    overflow: "scroll",
   },
   messageContainer: {
     display: "flex",
