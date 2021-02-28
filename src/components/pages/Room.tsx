@@ -309,10 +309,16 @@ const Room: React.FC<Props> = (props) => {
             <TextField
               id="chat"
               type="text"
-              multiline={true}
               size="small"
               value={message}
               onChange={handleChange}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleClickSend();
+                }
+              }}
             />
             <Button
               variant="contained"
