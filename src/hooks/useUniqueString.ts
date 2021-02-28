@@ -1,12 +1,44 @@
-import { useMemo } from "react";
+export const chooseAnimalName = (excludeNames: string[]): string => {
+  const candidate = dict.filter(name => !excludeNames.includes(name))
+  const animalName = candidate[Math.floor(Math.random() * candidate.length)]
+  return animalName
+}
 
-export const useUniqueString = (strong = 1000): string => {
-  const uniqueString = useMemo(() => {
-    return (
-      new Date().getTime().toString(16) +
-      Math.floor(strong * Math.random()).toString(16)
-    );
-  }, [strong]);
-
-  return uniqueString;
-};
+const dict = [
+  'raccoon',
+  'dog',
+  'boar',
+  'rabbit',
+  'cow',
+  'horse',
+  'wolf',
+  'hippopotamus',
+  'kangaroo',
+  'fox',
+  'giraffe',
+  'bear',
+  'koala',
+  'bat',
+  'gorilla',
+  'rhinoceros',
+  'monkey',
+  'zebra',
+  'jaguar',
+  'bear',
+  'skunk',
+  'elephant',
+  'rat',
+  'tiger',
+  'cat',
+  'mouse',
+  'buffalo',
+  'hamster',
+  'panda',
+  'sheep',
+  'pig',
+  'mole',
+  'goat',
+  'lion',
+  'camel',
+  'donkey',
+]
