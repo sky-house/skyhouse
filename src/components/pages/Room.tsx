@@ -1,9 +1,22 @@
-import React, { useCallback, useState, useRef, useEffect, useMemo } from "react";
+import React, {
+  useCallback,
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+} from "react";
 import { useLocation, RouteComponentProps, Link } from "react-router-dom";
 import Peer, { MeshRoom } from "skyway-js";
-import { Box, IconButton, TextField, Grid, Typography } from "@material-ui/core";
+import {
+  Box,
+  IconButton,
+  TextField,
+  Grid,
+  Typography,
+} from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
 import { Audio, Avator, Button } from "../atoms";
+import { SimpleSnackBar } from "../organisms";
 import { DefaultLayouts } from "../templates";
 import { chooseAnimalName } from "../../hooks";
 import { makeStyles } from "@material-ui/core/styles";
@@ -38,7 +51,9 @@ interface AllowUnmuteEvent {
 function filterEvents(events: (ChatEvent | AllowUnmuteEvent)[]) {
   return {
     chatEvents: events.filter((e) => e.kind === "ChatEvent") as ChatEvent[],
-    allowUnmuteEvents: events.filter((e) => e.kind === "AllowUnmuteEvent") as AllowUnmuteEvent[],
+    allowUnmuteEvents: events.filter(
+      (e) => e.kind === "AllowUnmuteEvent"
+    ) as AllowUnmuteEvent[],
   };
 }
 
@@ -49,29 +64,39 @@ const Room: React.FC<Props> = (props) => {
   const roomRef = useRef<MeshRoom>(null);
   const messageEl = useRef<HTMLDivElement>(null);
 
-  const users = useMemo(() => (location.state as RoomState).users || [], [location.state])
+  const users = useMemo(() => (location.state as RoomState).users || [], [
+    location.state,
+  ]);
 
   const [chatHistory, setChatHistory] = useState<ChatEvent[]>([]);
   const [message, setMessage] = useState("");
   const [audioMedias, setAudioMedias] = useState<MediaStreamWithPeerId[]>([]);
 
-  const connectedPeerIds = useMemo(() => audioMedias.map((media) => media.peerId), [audioMedias]);
+  const connectedPeerIds = useMemo(
+    () => audioMedias.map((media) => media.peerId),
+    [audioMedias]
+  );
   const [speakerPeerIds, setSpeakerPeerIds] = useState<string[]>([]);
-  const isAdmin = useMemo(() => (location.state as LinkState).admin, [location]);
+  const isAdmin = useMemo(() => (location.state as LinkState).admin, [
+    location,
+  ]);
 
   const audioTrackRef = useRef<MediaStreamTrack | null>(null);
   const [isSpeaker, setIsSpeaker] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const peerId = useRef<string>("");
 
-  const myAnimalName = useRef("")
+  const myAnimalName = useRef("");
 
   const handleClickSend = useCallback(() => {
     if (roomRef.current === null || message === "") {
       return;
     }
     roomRef.current.send({ kind: "ChatEvent", peerId, message });
-    setChatHistory((prev) => [...prev, { kind: "ChatEvent", peerId: peerId.current, message }]);
+    setChatHistory((prev) => [
+      ...prev,
+      { kind: "ChatEvent", peerId: peerId.current, message },
+    ]);
     setMessage("");
   }, [message]);
 
@@ -87,7 +112,10 @@ const Room: React.FC<Props> = (props) => {
       return;
     }
     setSpeakerPeerIds((prev) => [...prev, peerId]);
-    const event: AllowUnmuteEvent = { kind: "AllowUnmuteEvent", allowedPeerId: peerId };
+    const event: AllowUnmuteEvent = {
+      kind: "AllowUnmuteEvent",
+      allowedPeerId: peerId,
+    };
     roomRef.current.send(event);
   }
 
@@ -112,8 +140,10 @@ const Room: React.FC<Props> = (props) => {
     const isAdmin = (location.state as LinkState).admin;
     isAdmin && setIsSpeaker(true);
     const animalName = chooseAnimalName(users);
-    myAnimalName.current = animalName
-    const originalPeerId = isAdmin ? `${animalName}-${roomId}-admin` : `${animalName}-${roomId}`;
+    myAnimalName.current = animalName;
+    const originalPeerId = isAdmin
+      ? `${animalName}-${roomId}-admin`
+      : `${animalName}-${roomId}`;
     peerId.current = originalPeerId;
     const peer = new Peer(originalPeerId, {
       key: process.env.REACT_APP_SKYWAY_API_KEY,
@@ -143,22 +173,33 @@ const Room: React.FC<Props> = (props) => {
             const speakers = allowUnmuteEvents.map((e) => e.allowedPeerId);
             setSpeakerPeerIds((prev) => [...prev, ...speakers]);
           });
-          room.on("data", ({ src, data }: { src: any; data: ChatEvent | AllowUnmuteEvent }) => {
-            if (data.kind === "ChatEvent") {
-              setChatHistory((prev) => [...prev, data]);
-            } else if (data.kind === "AllowUnmuteEvent") {
-              setSpeakerPeerIds((prev) => [...prev, data.allowedPeerId]);
-              if (data.allowedPeerId === peerId.current) {
-                setIsSpeaker(true);
+          room.on(
+            "data",
+            ({
+              src,
+              data,
+            }: {
+              src: any;
+              data: ChatEvent | AllowUnmuteEvent;
+            }) => {
+              if (data.kind === "ChatEvent") {
+                setChatHistory((prev) => [...prev, data]);
+              } else if (data.kind === "AllowUnmuteEvent") {
+                setSpeakerPeerIds((prev) => [...prev, data.allowedPeerId]);
+                if (data.allowedPeerId === peerId.current) {
+                  setIsSpeaker(true);
+                }
               }
             }
-          });
+          );
           room.on("stream", (stream) => {
             setAudioMedias((prev) => [...prev, stream]);
           });
           // room.on('peerJoin', peerId => {})
           room.on("peerLeave", (peerId) => {
-            setAudioMedias((prev) => prev.filter((media) => media.peerId !== peerId));
+            setAudioMedias((prev) =>
+              prev.filter((media) => media.peerId !== peerId)
+            );
           });
         })
         .catch(console.error);
@@ -183,40 +224,78 @@ const Room: React.FC<Props> = (props) => {
       {audioMedias.map((media, index) => (
         <Audio key={`media.peerId-${index}`} stream={media} />
       ))}
+      {!isAdmin && isSpeaker && <SimpleSnackBar />}
       <Box className={classes.root}>
         <Box className={classes.mainContentsContainer}>
-          <Typography>{roomId}</Typography>
-          <Grid className={classes.iconContainer} container justify="center" spacing={2}>
-            {/* usersに自分自身が含まれていないので追加 */}
-            <Grid item>
-              <Avator name={myAnimalName.current} bgColor="primary" margin={1} />
-            </Grid>
-            {users.map((user) => (
+          <Box className={classes.iconContainer}>
+            <Typography
+              className={classes.typography}
+              align="left"
+              variant="subtitle1"
+            >
+              {roomId}
+            </Typography>
+            <Grid
+              container
+              className={classes.speakerGrid}
+              justify="center"
+              spacing={2}
+            >
               <Grid item>
-                <Avator name={user} bgColor="primary" margin={1} />
+                <Avator
+                  name={myAnimalName.current}
+                  bgColor="primary"
+                  margin={1}
+                />
               </Grid>
-            ))}
-          </Grid>
-          {isAdmin && (
-            <>
-              <div>聴いている人</div>
-              <ul>
-                {connectedPeerIds
-                  .filter((id) => !speakerPeerIds.includes(id))
-                  .map((id) => (
-                    <li key={id}>
-                      {id} <button onClick={() => handleAllowUnmuteAsAdmin(id)}>Invite</button>
-                    </li>
-                  ))}
-              </ul>
-            </>
-          )}
-          <div>話してる人</div>
-          <ul>
-            {speakerPeerIds.map((id) => (
-              <li key={id}>{id}</li>
-            ))}
-          </ul>
+              {speakerPeerIds.map((speakerPeerId, index) => (
+                <Grid item key={index}>
+                  <Avator name={speakerPeerId} bgColor="primary" margin={1} />
+                </Grid>
+              ))}
+            </Grid>
+            <Typography
+              className={classes.typography}
+              align="left"
+              variant="subtitle2"
+            >
+              Audiences in the room
+            </Typography>
+            <Grid
+              className={classes.iconContainer}
+              container
+              justify="center"
+              spacing={2}
+            >
+              {connectedPeerIds
+                .filter((id) => !speakerPeerIds.includes(id))
+                .map((connectedPeerId, index) => (
+                  <Grid item key={index}>
+                    <Avator
+                      name={connectedPeerId.split("-")[0]}
+                      bgColor="primary"
+                      margin={1}
+                    />
+                    {isAdmin && (
+                      <button
+                        onClick={() =>
+                          handleAllowUnmuteAsAdmin(connectedPeerId)
+                        }
+                      >
+                        Invite
+                      </button>
+                    )}
+                  </Grid>
+                ))}
+            </Grid>
+          </Box>
+          <Typography
+            className={classes.typography}
+            align="left"
+            variant="subtitle2"
+          >
+            Chats in the room
+          </Typography>
           <Box {...{ ref: messageEl }} className={classes.messageContainer}>
             {chatHistory.map((chat, index) => (
               <Box key={index} className={classes.message}>
@@ -260,7 +339,11 @@ const Room: React.FC<Props> = (props) => {
                   <VolumeOffOutlinedIcon />
                 </IconButton>
               ) : (
-                <IconButton className={classes.volumeOnIconButton} aria-label="mute" onClick={mute}>
+                <IconButton
+                  className={classes.volumeOnIconButton}
+                  aria-label="mute"
+                  onClick={mute}
+                >
                   <VolumeUpOutlinedIcon />
                 </IconButton>
               ))}
@@ -279,15 +362,26 @@ const useStyles = makeStyles({
     height: "100vh",
     width: "100%",
   },
+  typography: {
+    marginTop: "10px",
+    marginBottom: "10px",
+    marginLeft: "20px",
+    marginRight: "20px",
+    borderBottom: "solid 2px #F2F2F2",
+  },
+  speakerGrid: {
+    minHeight: "50px",
+  },
   mainContentsContainer: {
-    height: "720px",
+    height: "750px",
     width: "100%",
     position: "absolute",
     bottom: "0",
     backgroundColor: "#fff",
     borderRadius: "25px 25px 0 0",
     boxShadow: "0 3px 6px -2px rgb(0 10 60 / 20%)",
-    paddingTop: "20px",
+    // paddingTop: "20px",
+    // overflow: "auto",
   },
   InteractionContainer: {
     position: "absolute",
@@ -300,12 +394,14 @@ const useStyles = makeStyles({
     width: "100%",
     bgcolor: "#fff",
     paddingTop: "10px",
+    backgroundColor: "#fff",
     boxShadow: "0 -3px 6px -2px rgb(0 10 60 / 20%)",
   },
   iconContainer: {
-    height: "130px",
-    marginTop: "10px",
-    overflow: "scroll",
+    height: "150px",
+    marginTop: "20px",
+    marginBottom: "10px",
+    overflow: "auto",
   },
   messageContainer: {
     display: "flex",
@@ -313,11 +409,11 @@ const useStyles = makeStyles({
     alignItems: "center",
     height: "400px",
     width: "100%",
-    overflow: "scroll",
+    overflow: "auto",
     backgroundColor: "#fff",
   },
   message: {
-    width: "220px",
+    width: "200px",
     marginTop: "10px",
     marginBottom: "10px",
     padding: "10px 20px",
