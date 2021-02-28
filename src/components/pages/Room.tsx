@@ -239,7 +239,7 @@ const Room: React.FC<Props> = (props) => {
               container
               className={classes.speakerGrid}
               justify="center"
-              spacing={3}
+              spacing={2}
             >
               <Grid item>
                 <Avator
@@ -265,14 +265,14 @@ const Room: React.FC<Props> = (props) => {
               className={classes.iconContainer}
               container
               justify="center"
-              spacing={3}
+              spacing={2}
             >
               {connectedPeerIds
                 .filter((id) => !speakerPeerIds.includes(id))
                 .map((connectedPeerId, index) => (
                   <Grid item key={index}>
                     <Avator
-                      name={connectedPeerId}
+                      name={connectedPeerId.split("-")[0]}
                       bgColor="primary"
                       margin={1}
                     />
