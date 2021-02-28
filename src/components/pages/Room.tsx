@@ -31,6 +31,7 @@ const Room: React.FC<Props> = (props) => {
   const location = useLocation();
   const { roomId } = props.match.params;
   const roomRef = useRef<MeshRoom>(null);
+  const messageEl = useRef<HTMLDivElement>(null);
 
   const uniqueString = useUniqueString();
 
@@ -124,6 +125,18 @@ const Room: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId]);
 
+  useEffect(() => {
+    if (messageEl) {
+      (messageEl.current as any).addEventListener(
+        "DOMNodeInserted",
+        (event: { currentTarget: any }) => {
+          const { currentTarget: target } = event;
+          target.scroll({ top: target.scrollHeight, behavior: "smooth" });
+        }
+      );
+    }
+  }, []);
+
   // TODO: get users
   const users = ["john", "mike", "jack"];
 
@@ -148,7 +161,7 @@ const Room: React.FC<Props> = (props) => {
               </Grid>
             ))}
           </Grid>
-          <Box className={classes.messageContainer}>
+          <Box {...{ ref: messageEl }} className={classes.messageContainer}>
             {messages.map((message, index) => (
               <Box key={index} className={classes.message}>
                 {message}
