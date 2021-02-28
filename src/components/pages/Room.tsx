@@ -11,7 +11,7 @@ import {
 import SendIcon from "@material-ui/icons/Send";
 import { Audio, Avator, Button } from "../atoms";
 import { DefaultLayouts } from "../templates";
-import { useUniqueString } from "../../hooks";
+import { useAnimalName } from "../../hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import VolumeUpOutlinedIcon from "@material-ui/icons/VolumeUpOutlined";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
@@ -24,6 +24,10 @@ interface LinkState {
   [key: string]: boolean;
 }
 
+interface RoomState {
+  users: string[];
+}
+
 interface Props extends RouteComponentProps<{ roomId: string }> {}
 
 const Room: React.FC<Props> = (props) => {
@@ -33,7 +37,8 @@ const Room: React.FC<Props> = (props) => {
   const roomRef = useRef<MeshRoom>(null);
   const messageEl = useRef<HTMLDivElement>(null);
 
-  const uniqueString = useUniqueString();
+  const animalName = useAnimalName((location.state as RoomState).users || []);
+  const users = (location.state as RoomState).users || [];
 
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState("");
@@ -77,7 +82,7 @@ const Room: React.FC<Props> = (props) => {
   // チャット用のEffect
   useEffect(() => {
     const isAdmin = (location.state as LinkState).admin;
-    const originalPeerId = isAdmin ? `${uniqueString}-${roomId}` : uniqueString;
+    const originalPeerId = isAdmin ? `${animalName}-${roomId}-admin` : `${animalName}-${roomId}`;
     const peer = new Peer(originalPeerId, {
       key: process.env.REACT_APP_SKYWAY_API_KEY,
       // debug: 3,
@@ -137,9 +142,6 @@ const Room: React.FC<Props> = (props) => {
     }
   }, []);
 
-  // TODO: get users
-  const users = ["john", "mike", "jack"];
-
   return (
     <DefaultLayouts>
       {audioMedias.map((media, index) => (
@@ -154,7 +156,6 @@ const Room: React.FC<Props> = (props) => {
             justify="center"
             spacing={2}
           >
-            {/* TODO: get users */}
             {users.map((user) => (
               <Grid item>
                 <Avator name={user} bgColor="primary" margin={1} />
