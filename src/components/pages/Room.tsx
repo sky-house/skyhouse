@@ -252,7 +252,7 @@ const useStyles = makeStyles({
   iconContainer: {
     height: "130px",
     marginTop: "10px",
-    overflow: "scroll",
+    overflow: "auto",
   },
   messageContainer: {
     display: "flex",
@@ -260,7 +260,7 @@ const useStyles = makeStyles({
     alignItems: "center",
     height: "400px",
     width: "100%",
-    overflow: "scroll",
+    overflow: "auto",
     backgroundColor: "#fff",
   },
   message: {
