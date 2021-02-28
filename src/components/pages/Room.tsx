@@ -5,7 +5,7 @@ import { Box, IconButton, TextField, Grid, Typography } from "@material-ui/core"
 import SendIcon from "@material-ui/icons/Send";
 import { Audio, Avator, Button } from "../atoms";
 import { DefaultLayouts } from "../templates";
-import { useUniqueString } from "../../hooks";
+import { useAnimalName } from "../../hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import VolumeUpOutlinedIcon from "@material-ui/icons/VolumeUpOutlined";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
@@ -16,6 +16,10 @@ interface MediaStreamWithPeerId extends MediaStream {
 
 interface LinkState {
   [key: string]: boolean;
+}
+
+interface RoomState {
+  users: string[];
 }
 
 interface Props extends RouteComponentProps<{ roomId: string }> {}
@@ -45,7 +49,8 @@ const Room: React.FC<Props> = (props) => {
   const roomRef = useRef<MeshRoom>(null);
   const messageEl = useRef<HTMLDivElement>(null);
 
-  const uniqueString = useUniqueString();
+  const animalName = useAnimalName((location.state as RoomState).users || []);
+  const users = (location.state as RoomState).users || [];
 
   const [chatHistory, setChatHistory] = useState<ChatEvent[]>([]);
   const [message, setMessage] = useState("");
@@ -105,7 +110,7 @@ const Room: React.FC<Props> = (props) => {
   useEffect(() => {
     const isAdmin = (location.state as LinkState).admin;
     isAdmin && setIsSpeaker(true);
-    const originalPeerId = isAdmin ? `${uniqueString}-${roomId}` : uniqueString;
+    const originalPeerId = isAdmin ? `${animalName}-${roomId}-admin` : `${animalName}-${roomId}`;
     peerId.current = originalPeerId;
     const peer = new Peer(originalPeerId, {
       key: process.env.REACT_APP_SKYWAY_API_KEY,
@@ -173,9 +178,6 @@ const Room: React.FC<Props> = (props) => {
     }
   }, []);
 
-  // TODO: get users
-  const users = ["john", "mike", "jack"];
-
   return (
     <DefaultLayouts>
       {audioMedias.map((media, index) => (
@@ -185,7 +187,6 @@ const Room: React.FC<Props> = (props) => {
         <Box className={classes.mainContentsContainer}>
           <Typography>{roomId}</Typography>
           <Grid className={classes.iconContainer} container justify="center" spacing={2}>
-            {/* TODO: get users */}
             {users.map((user) => (
               <Grid item>
                 <Avator name={user} bgColor="primary" margin={1} />
