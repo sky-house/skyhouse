@@ -1,27 +1,14 @@
 import React from "react";
-import { Button, Snackbar } from "@material-ui/core";
+import { Snackbar, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import CloseIcon from "@material-ui/icons/Close";
 
-interface Props {
-  isSpeaker: boolean;
-  setIsSpeaker: (value: React.SetStateAction<boolean>) => void;
-}
-
-export const SimpleSnackBar: React.FC<Props> = ({
-  isSpeaker,
-  setIsSpeaker,
-}: Props) => {
+export const SimpleSnackBar: React.FC = () => {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(isSpeaker);
+  const [open, setOpen] = React.useState(true);
 
-  const handleApproveInvite = () => {
+  const handleClose = () => {
     setOpen(false);
-    setIsSpeaker(true);
-  };
-
-  const handleRejectInvite = () => {
-    setOpen(false);
-    setIsSpeaker(false);
   };
 
   return (
@@ -30,27 +17,20 @@ export const SimpleSnackBar: React.FC<Props> = ({
         vertical: "top",
         horizontal: "center",
       }}
+      autoHideDuration={6000}
       open={open}
-      message="You are invited to speaker."
+      message="🎉 You are invited to speaker!"
       action={
-        <>
-          <Button
-            className={classes.snackBarButton}
-            color="inherit"
+        <React.Fragment>
+          <IconButton
             size="small"
-            onClick={handleApproveInvite}
-          >
-            👍 Yes!
-          </Button>
-          <Button
-            className={classes.snackBarButton}
+            aria-label="close"
             color="inherit"
-            size="small"
-            onClick={handleRejectInvite}
+            onClick={handleClose}
           >
-            👎 No!
-          </Button>
-        </>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </React.Fragment>
       }
       ContentProps={{ className: classes.snackBarContainer }}
     />

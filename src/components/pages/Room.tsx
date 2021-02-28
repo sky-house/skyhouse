@@ -215,9 +215,7 @@ const Room: React.FC<Props> = (props) => {
       {audioMedias.map((media, index) => (
         <Audio key={`media.peerId-${index}`} stream={media} />
       ))}
-      {!isAdmin && isSpeaker && (
-        <SimpleSnackBar isSpeaker={isSpeaker} setIsSpeaker={setIsSpeaker} />
-      )}
+      {!isAdmin && isSpeaker && <SimpleSnackBar />}
       <Box className={classes.root}>
         <Box className={classes.mainContentsContainer}>
           <Box className={classes.iconContainer}>
