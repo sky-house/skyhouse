@@ -1,4 +1,10 @@
-import React, { useCallback, useState, useRef, useEffect } from "react";
+import React, {
+  useCallback,
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+} from "react";
 import { useLocation, RouteComponentProps, Link } from "react-router-dom";
 import Peer, { MeshRoom } from "skyway-js";
 import {
@@ -27,6 +33,26 @@ interface LinkState {
 
 interface Props extends RouteComponentProps<{ roomId: string }> {}
 
+interface ChatEvent {
+  kind: "ChatEvent";
+  peerId: string;
+  message: string;
+}
+
+interface AllowUnmuteEvent {
+  kind: "AllowUnmuteEvent";
+  allowedPeerId: string;
+}
+
+function filterEvents(events: (ChatEvent | AllowUnmuteEvent)[]) {
+  return {
+    chatEvents: events.filter((e) => e.kind === "ChatEvent") as ChatEvent[],
+    allowUnmuteEvents: events.filter(
+      (e) => e.kind === "AllowUnmuteEvent"
+    ) as AllowUnmuteEvent[],
+  };
+}
+
 const Room: React.FC<Props> = (props) => {
   const classes = useStyles();
   const location = useLocation();
@@ -36,22 +62,35 @@ const Room: React.FC<Props> = (props) => {
 
   const uniqueString = useUniqueString();
 
-  const [messages, setMessages] = useState<string[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatEvent[]>([]);
   const [message, setMessage] = useState("");
   const [audioMedias, setAudioMedias] = useState<MediaStreamWithPeerId[]>([]);
-  const [isSpeaker, setIsSpeaker] = useState(false);
+
+  const connectedPeerIds = useMemo(
+    () => audioMedias.map((media) => media.peerId),
+    [audioMedias]
+  );
+  const [speakerPeerIds, setSpeakerPeerIds] = useState<string[]>([]);
+  const isAdmin = useMemo(() => (location.state as LinkState).admin, [
+    location,
+  ]);
 
   const audioTrackRef = useRef<MediaStreamTrack | null>(null);
+  const [isSpeaker, setIsSpeaker] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const peerId = useRef<string>("");
 
-  const handleClick = useCallback(() => {
+  const handleClickSend = useCallback(() => {
     if (roomRef.current === null || message === "") {
       return;
     }
-    roomRef.current.send(message);
-    setMessages([...messages, message]);
+    roomRef.current.send({ kind: "ChatEvent", peerId, message });
+    setChatHistory((prev) => [
+      ...prev,
+      { kind: "ChatEvent", peerId: peerId.current, message },
+    ]);
     setMessage("");
-  }, [message, messages]);
+  }, [message]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -59,6 +98,18 @@ const Room: React.FC<Props> = (props) => {
     },
     []
   );
+
+  function handleAllowUnmuteAsAdmin(peerId: string) {
+    if (roomRef.current === null || !isAdmin) {
+      return;
+    }
+    setSpeakerPeerIds((prev) => [...prev, peerId]);
+    const event: AllowUnmuteEvent = {
+      kind: "AllowUnmuteEvent",
+      allowedPeerId: peerId,
+    };
+    roomRef.current.send(event);
+  }
 
   function mute() {
     if (audioTrackRef.current === null) {
@@ -79,7 +130,9 @@ const Room: React.FC<Props> = (props) => {
   // チャット用のEffect
   useEffect(() => {
     const isAdmin = (location.state as LinkState).admin;
+    isAdmin && setIsSpeaker(true);
     const originalPeerId = isAdmin ? `${uniqueString}-${roomId}` : uniqueString;
+    peerId.current = originalPeerId;
     const peer = new Peer(originalPeerId, {
       key: process.env.REACT_APP_SKYWAY_API_KEY,
       // debug: 3,
@@ -101,16 +154,34 @@ const Room: React.FC<Props> = (props) => {
             room.getLog();
           });
           room.on("log", (logs) => {
-            const chats = logs
+            const events = logs
               .map((log) => JSON.parse(log))
-              .filter((log) => log.messageType === "ROOM_DATA")
-              .map((log) => log.message.data);
-            setMessages((prev) => [...prev, ...chats]);
+              .filter((log) => log.messageType === "ROOM_DATA");
+            const { allowUnmuteEvents, chatEvents } = filterEvents(events);
+            setChatHistory((prev) => [...prev, ...chatEvents]);
+            const speakers = allowUnmuteEvents.map((e) => e.allowedPeerId);
+            setSpeakerPeerIds((prev) => [...prev, ...speakers]);
           });
-          room.on("data", ({ src, data }) => {
-            console.log("data", data);
-            setMessages((prev) => [...prev, data]);
-          });
+          room.on(
+            "data",
+            ({
+              src,
+              data,
+            }: {
+              src: any;
+              data: ChatEvent | AllowUnmuteEvent;
+            }) => {
+              console.log("data", data);
+              if (data.kind === "ChatEvent") {
+                setChatHistory((prev) => [...prev, data]);
+              } else if (data.kind === "AllowUnmuteEvent") {
+                setSpeakerPeerIds((prev) => [...prev, data.allowedPeerId]);
+                if (data.allowedPeerId === peerId.current) {
+                  setIsSpeaker(true);
+                }
+              }
+            }
+          );
           room.on("stream", (stream) => {
             console.log("stream", stream);
             setAudioMedias((prev) => [...prev, stream]);
@@ -165,10 +236,33 @@ const Room: React.FC<Props> = (props) => {
               </Grid>
             ))}
           </Grid>
+          {isAdmin && (
+            <>
+              <div>聴いている人</div>
+              <ul>
+                {connectedPeerIds
+                  .filter((id) => !speakerPeerIds.includes(id))
+                  .map((id) => (
+                    <li key={id}>
+                      {id}{" "}
+                      <button onClick={() => handleAllowUnmuteAsAdmin(id)}>
+                        Invite
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            </>
+          )}
+          <div>話してる人</div>
+          <ul>
+            {speakerPeerIds.map((id) => (
+              <li key={id}>{id}</li>
+            ))}
+          </ul>
           <Box {...{ ref: messageEl }} className={classes.messageContainer}>
-            {messages.map((message, index) => (
+            {chatHistory.map((chat, index) => (
               <Box key={index} className={classes.message}>
-                {message}
+                {chat.message}
               </Box>
             ))}
           </Box>
@@ -188,7 +282,7 @@ const Room: React.FC<Props> = (props) => {
               variant="contained"
               endIcon={<SendIcon />}
               size="small"
-              onClick={handleClick}
+              onClick={handleClickSend}
             >
               Send
             </Button>
@@ -199,23 +293,24 @@ const Room: React.FC<Props> = (props) => {
                 ✌️ Leave quietly
               </Button>
             </Link>
-            {isSpeaker && isMuted ? (
-              <IconButton
-                className={classes.volumeOffIconButton}
-                aria-label="unmute"
-                onClick={unmute}
-              >
-                <VolumeOffOutlinedIcon />
-              </IconButton>
-            ) : (
-              <IconButton
-                className={classes.volumeOnIconButton}
-                aria-label="mute"
-                onClick={mute}
-              >
-                <VolumeUpOutlinedIcon />
-              </IconButton>
-            )}
+            {isSpeaker &&
+              (isMuted ? (
+                <IconButton
+                  className={classes.volumeOffIconButton}
+                  aria-label="unmute"
+                  onClick={unmute}
+                >
+                  <VolumeOffOutlinedIcon />
+                </IconButton>
+              ) : (
+                <IconButton
+                  className={classes.volumeOnIconButton}
+                  aria-label="mute"
+                  onClick={mute}
+                >
+                  <VolumeUpOutlinedIcon />
+                </IconButton>
+              ))}
           </Box>
         </Box>
       </Box>
