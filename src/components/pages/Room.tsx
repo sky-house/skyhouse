@@ -210,55 +210,78 @@ const Room: React.FC<Props> = (props) => {
     }
   }, []);
 
-  // TODO: get users
-  const users = ["john", "mike", "jack"];
-
   return (
     <DefaultLayouts>
       {audioMedias.map((media, index) => (
         <Audio key={`media.peerId-${index}`} stream={media} />
       ))}
-      {/* 招待された際に表示されるSnackBar */}
-      <SimpleSnackBar isSpeaker={isSpeaker} setIsSpeaker={setIsSpeaker} />
+      {!isAdmin && isSpeaker && (
+        <SimpleSnackBar isSpeaker={isSpeaker} setIsSpeaker={setIsSpeaker} />
+      )}
       <Box className={classes.root}>
         <Box className={classes.mainContentsContainer}>
-          <Typography>{roomId}</Typography>
-          <Grid
-            className={classes.iconContainer}
-            container
-            justify="center"
-            spacing={2}
-          >
-            {/* TODO: get users */}
-            {users.map((user) => (
-              <Grid item>
-                <Avator name={user} bgColor="primary" margin={1} />
-              </Grid>
-            ))}
-          </Grid>
-          {isAdmin && (
-            <>
-              <div>聴いている人</div>
-              <ul>
-                {connectedPeerIds
-                  .filter((id) => !speakerPeerIds.includes(id))
-                  .map((id) => (
-                    <li key={id}>
-                      {id}{" "}
-                      <button onClick={() => handleAllowUnmuteAsAdmin(id)}>
+          <Box className={classes.iconContainer}>
+            <Typography
+              className={classes.typography}
+              align="left"
+              variant="subtitle1"
+            >
+              {roomId}
+            </Typography>
+            <Grid
+              container
+              className={classes.speakerGrid}
+              justify="center"
+              spacing={3}
+            >
+              {speakerPeerIds.map((speakerPeerId, index) => (
+                <Grid item key={index}>
+                  <Avator name={speakerPeerId} bgColor="primary" margin={1} />
+                </Grid>
+              ))}
+            </Grid>
+            <Typography
+              className={classes.typography}
+              align="left"
+              variant="subtitle2"
+            >
+              Audiences in the room
+            </Typography>
+            <Grid
+              className={classes.iconContainer}
+              container
+              justify="center"
+              spacing={3}
+            >
+              {connectedPeerIds
+                .filter((id) => !speakerPeerIds.includes(id))
+                .map((connectedPeerId, index) => (
+                  <Grid item key={index}>
+                    <Avator
+                      name={connectedPeerId}
+                      bgColor="primary"
+                      margin={1}
+                    />
+                    {isAdmin && (
+                      <button
+                        onClick={() =>
+                          handleAllowUnmuteAsAdmin(connectedPeerId)
+                        }
+                      >
                         Invite
                       </button>
-                    </li>
-                  ))}
-              </ul>
-            </>
-          )}
-          <div>話してる人</div>
-          <ul>
-            {speakerPeerIds.map((id) => (
-              <li key={id}>{id}</li>
-            ))}
-          </ul>
+                    )}
+                  </Grid>
+                ))}
+            </Grid>
+          </Box>
+          <Typography
+            className={classes.typography}
+            align="left"
+            variant="subtitle2"
+          >
+            Chats in the room
+          </Typography>
           <Box {...{ ref: messageEl }} className={classes.messageContainer}>
             {chatHistory.map((chat, index) => (
               <Box key={index} className={classes.message}>
@@ -267,7 +290,6 @@ const Room: React.FC<Props> = (props) => {
             ))}
           </Box>
         </Box>
-
         <Box className={classes.InteractionContainer}>
           <Box className={classes.TextFieldContainer}>
             <TextField
@@ -326,15 +348,26 @@ const useStyles = makeStyles({
     height: "100vh",
     width: "100%",
   },
+  typography: {
+    marginTop: "10px",
+    marginBottom: "10px",
+    marginLeft: "20px",
+    marginRight: "20px",
+    borderBottom: "solid 2px #F2F2F2",
+  },
+  speakerGrid: {
+    minHeight: "50px",
+  },
   mainContentsContainer: {
-    height: "720px",
+    height: "750px",
     width: "100%",
     position: "absolute",
     bottom: "0",
     backgroundColor: "#fff",
     borderRadius: "25px 25px 0 0",
     boxShadow: "0 3px 6px -2px rgb(0 10 60 / 20%)",
-    paddingTop: "20px",
+    // paddingTop: "20px",
+    // overflow: "auto",
   },
   InteractionContainer: {
     position: "absolute",
@@ -347,11 +380,13 @@ const useStyles = makeStyles({
     width: "100%",
     bgcolor: "#fff",
     paddingTop: "10px",
+    backgroundColor: "#fff",
     boxShadow: "0 -3px 6px -2px rgb(0 10 60 / 20%)",
   },
   iconContainer: {
-    height: "130px",
-    marginTop: "10px",
+    height: "150px",
+    marginTop: "20px",
+    marginBottom: "10px",
     overflow: "auto",
   },
   messageContainer: {
@@ -364,7 +399,7 @@ const useStyles = makeStyles({
     backgroundColor: "#fff",
   },
   message: {
-    width: "220px",
+    width: "200px",
     marginTop: "10px",
     marginBottom: "10px",
     padding: "10px 20px",
