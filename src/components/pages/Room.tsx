@@ -313,6 +313,13 @@ const Room: React.FC<Props> = (props) => {
               size="small"
               value={message}
               onChange={handleChange}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleClickSend();
+                }
+              }}
             />
             <Button
               variant="contained"
