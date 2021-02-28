@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
 import { Audio, Avator, Button } from "../atoms";
+import { SimpleSnackBar } from "../organisms";
 import { DefaultLayouts } from "../templates";
 import { useUniqueString } from "../../hooks";
 import { makeStyles } from "@material-ui/core/styles";
@@ -38,6 +39,7 @@ const Room: React.FC<Props> = (props) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [audioMedias, setAudioMedias] = useState<MediaStreamWithPeerId[]>([]);
+  const [isSpeaker, setIsSpeaker] = useState(false);
 
   const audioTrackRef = useRef<MediaStreamTrack | null>(null);
   const [isMuted, setIsMuted] = useState(true);
@@ -145,6 +147,8 @@ const Room: React.FC<Props> = (props) => {
       {audioMedias.map((media, index) => (
         <Audio key={`media.peerId-${index}`} stream={media} />
       ))}
+      {/* 招待された際に表示されるSnackBar */}
+      <SimpleSnackBar isSpeaker={isSpeaker} setIsSpeaker={setIsSpeaker} />
       <Box className={classes.root}>
         <Box className={classes.mainContentsContainer}>
           <Typography>{roomId}</Typography>
@@ -169,6 +173,7 @@ const Room: React.FC<Props> = (props) => {
             ))}
           </Box>
         </Box>
+
         <Box className={classes.InteractionContainer}>
           <Box className={classes.TextFieldContainer}>
             <TextField
@@ -194,7 +199,7 @@ const Room: React.FC<Props> = (props) => {
                 ✌️ Leave quietly
               </Button>
             </Link>
-            {isMuted ? (
+            {isSpeaker && isMuted ? (
               <IconButton
                 className={classes.volumeOffIconButton}
                 aria-label="unmute"
